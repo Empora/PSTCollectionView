@@ -246,6 +246,9 @@ static void PSTCollectionViewCommonSetup(PSTCollectionView *_self) {
     NSParameterAssert(cellClass);
     NSParameterAssert(identifier);
     _cellClassDict[identifier] = cellClass;
+    if (_cellNibDict[identifier]) {
+        [_cellNibDict removeObjectForKey:identifier];
+    }
 }
 
 - (void)registerClass:(Class)viewClass forSupplementaryViewOfKind:(NSString *)elementKind withReuseIdentifier:(NSString *)identifier {
@@ -260,6 +263,9 @@ static void PSTCollectionViewCommonSetup(PSTCollectionView *_self) {
     NSAssert(topLevelObjects.count == 1 && [topLevelObjects[0] isKindOfClass:PSTCollectionViewCell.class], @"must contain exactly 1 top level object which is a PSTCollectionViewCell");
 
     _cellNibDict[identifier] = nib;
+    if (_cellClassDict[identifier]) {
+        [_cellClassDict removeObjectForKey:identifier];
+    }
 }
 
 - (void)registerNib:(UINib *)nib forSupplementaryViewOfKind:(NSString *)kind withReuseIdentifier:(NSString *)identifier {
