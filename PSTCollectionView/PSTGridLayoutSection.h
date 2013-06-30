@@ -1,11 +1,11 @@
 //
-//  PSTCollectionLayoutSection.h
+//  PSTGridLayoutSection.h
 //  PSPDFKit
 //
-//  Copyright (c) 2012 Peter Steinberger. All rights reserved.
+//  Copyright (c) 2012-2013 Peter Steinberger. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
 
 @class PSTGridLayoutInfo, PSTGridLayoutRow, PSTGridLayoutItem;
 
@@ -43,7 +43,6 @@
 @property (nonatomic, assign, readonly) NSInteger itemsByRowCount;
 @property (nonatomic, assign, readonly) NSInteger indexOfImcompleteRow; // typo as of iOS6B3
 
-
 //- (PSTGridLayoutSection *)copyFromLayoutInfo:(PSTGridLayoutInfo *)layoutInfo;
 
 // Faster variant of invalidate/compute
@@ -56,6 +55,7 @@
 - (void)computeLayout;
 
 - (PSTGridLayoutItem *)addItem;
+
 - (PSTGridLayoutRow *)addRow;
 
 // Copy snapshot of current object

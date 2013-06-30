@@ -2,7 +2,7 @@
 //  PSTCollectionViewFlowLayout.m
 //  PSPDFKit
 //
-//  Copyright (c) 2012 Peter Steinberger. All rights reserved.
+//  Copyright (c) 2012-2013 Peter Steinberger. All rights reserved.
 //
 
 #import "PSTCollectionViewFlowLayout.h"
@@ -35,7 +35,7 @@ NSString *const PSTFlowLayoutRowVerticalAlignmentKey = @"UIFlowLayoutRowVertical
         unsigned int keepAllDataWhileInvalidating : 1;
         unsigned int layoutDataIsValid : 1;
         unsigned int delegateInfoIsValid : 1;
-    } _gridLayoutFlags;
+    }_gridLayoutFlags;
     float _interitemSpacing;
     float _lineSpacing;
     CGSize _itemSize;
@@ -53,6 +53,7 @@ NSString *const PSTFlowLayoutRowVerticalAlignmentKey = @"UIFlowLayoutRowVertical
     PSTCollectionViewScrollDirection _scrollDirection;
     NSDictionary *_rowAlignmentsOptionsDictionary;
     CGRect _visibleBounds;
+    char filler[200]; // [HACK] Our class needs to be larged than Apple's class for the superclass change to work
 }
 
 @synthesize rowAlignmentOptions = _rowAlignmentsOptionsDictionary;
@@ -73,19 +74,19 @@ NSString *const PSTFlowLayoutRowVerticalAlignmentKey = @"UIFlowLayoutRowVertical
 }
 
 - (id)init {
-    if((self = [super init])) {
+    if ((self = [super init])) {
         [self commonInit];
 
         // set default values for row alignment.
         _rowAlignmentsOptionsDictionary = @{
-        PSTFlowLayoutCommonRowHorizontalAlignmentKey : @(PSTFlowLayoutHorizontalAlignmentJustify),
-        PSTFlowLayoutLastRowHorizontalAlignmentKey : @(PSTFlowLayoutHorizontalAlignmentJustify),
-        // TODO: those values are some enum. find out what what is.
-        PSTFlowLayoutRowVerticalAlignmentKey : @(1),
+                PSTFlowLayoutCommonRowHorizontalAlignmentKey : @(PSTFlowLayoutHorizontalAlignmentJustify),
+                PSTFlowLayoutLastRowHorizontalAlignmentKey : @(PSTFlowLayoutHorizontalAlignmentJustify),
+                // TODO: those values are some enum. find out what that is.
+                PSTFlowLayoutRowVerticalAlignmentKey : @(1),
         };
 
         // custom ivars
-        objc_setAssociatedObject(self, &kPSTCachedItemRectsKey, [NSMutableArray array], OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+        objc_setAssociatedObject(self, &kPSTCachedItemRectsKey, [NSMutableDictionary dictionary], OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     }
     return self;
 }
@@ -113,6 +114,18 @@ NSString *const PSTFlowLayoutRowVerticalAlignmentKey = @"UIFlowLayoutRowVertical
     return self;
 }
 
+- (void)encodeWithCoder:(NSCoder *)coder {
+    [super encodeWithCoder:coder];
+
+    [coder encodeCGSize:self.itemSize forKey:@"UIItemSize"];
+    [coder encodeFloat:self.minimumInteritemSpacing forKey:@"UIInteritemSpacing"];
+    [coder encodeFloat:self.minimumLineSpacing forKey:@"UILineSpacing"];
+    [coder encodeCGSize:self.footerReferenceSize forKey:@"UIFooterReferenceSize"];
+    [coder encodeCGSize:self.headerReferenceSize forKey:@"UIHeaderReferenceSize"];
+    [coder encodeUIEdgeInsets:self.sectionInset forKey:@"UISectionInset"];
+    [coder encodeInteger:self.scrollDirection forKey:@"UIScrollDirection"];
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark - PSTCollectionViewLayout
 
@@ -130,10 +143,20 @@ static char kPSTCachedItemRectsKey;
             // for the last row. (we want this effect!)
             NSMutableDictionary *rectCache = objc_getAssociatedObject(self, &kPSTCachedItemRectsKey);
             NSUInteger sectionIndex = [_data.sections indexOfObjectIdenticalTo:section];
+
+            CGRect normalizedHeaderFrame = section.headerFrame;
+            normalizedHeaderFrame.origin.x += section.frame.origin.x;
+            normalizedHeaderFrame.origin.y += section.frame.origin.y;
+            if (!CGRectIsEmpty(normalizedHeaderFrame) && CGRectIntersectsRect(normalizedHeaderFrame, rect)) {
+                PSTCollectionViewLayoutAttributes *layoutAttributes = [[self.class layoutAttributesClass] layoutAttributesForSupplementaryViewOfKind:PSTCollectionElementKindSectionHeader withIndexPath:[NSIndexPath indexPathForItem:0 inSection:sectionIndex]];
+                layoutAttributes.frame = normalizedHeaderFrame;
+                [layoutAttributesArray addObject:layoutAttributes];
+            }
+
             NSArray *itemRects = rectCache[@(sectionIndex)];
-            if (!itemRects && section.fixedItemSize && [section.rows count]) {
+            if (!itemRects && section.fixedItemSize && section.rows.count) {
                 itemRects = [(section.rows)[0] itemRects];
-                if(itemRects) rectCache[@(sectionIndex)] = itemRects;
+                if (itemRects) rectCache[@(sectionIndex)] = itemRects;
             }
 
             for (PSTGridLayoutRow *row in section.rows) {
@@ -141,7 +164,7 @@ static char kPSTCachedItemRectsKey;
                 normalizedRowFrame.origin.x += section.frame.origin.x;
                 normalizedRowFrame.origin.y += section.frame.origin.y;
                 if (CGRectIntersectsRect(normalizedRowFrame, rect)) {
-                    // TODO be more fine-graind for items
+                    // TODO be more fine-grained for items
 
                     for (NSInteger itemIndex = 0; itemIndex < row.itemCount; itemIndex++) {
                         PSTCollectionViewLayoutAttributes *layoutAttributes;
@@ -155,11 +178,20 @@ static char kPSTCachedItemRectsKey;
                             sectionItemIndex = [section.items indexOfObjectIdenticalTo:item];
                             itemFrame = item.itemFrame;
                         }
-                        layoutAttributes = [PSTCollectionViewLayoutAttributes layoutAttributesForCellWithIndexPath:[NSIndexPath indexPathForItem:sectionItemIndex inSection:sectionIndex]];
+                        layoutAttributes = [[self.class layoutAttributesClass] layoutAttributesForCellWithIndexPath:[NSIndexPath indexPathForItem:sectionItemIndex inSection:sectionIndex]];
                         layoutAttributes.frame = CGRectMake(normalizedRowFrame.origin.x + itemFrame.origin.x, normalizedRowFrame.origin.y + itemFrame.origin.y, itemFrame.size.width, itemFrame.size.height);
                         [layoutAttributesArray addObject:layoutAttributes];
                     }
                 }
+            }
+
+            CGRect normalizedFooterFrame = section.footerFrame;
+            normalizedFooterFrame.origin.x += section.frame.origin.x;
+            normalizedFooterFrame.origin.y += section.frame.origin.y;
+            if (!CGRectIsEmpty(normalizedFooterFrame) && CGRectIntersectsRect(normalizedFooterFrame, rect)) {
+                PSTCollectionViewLayoutAttributes *layoutAttributes = [[self.class layoutAttributesClass] layoutAttributesForSupplementaryViewOfKind:PSTCollectionElementKindSectionFooter withIndexPath:[NSIndexPath indexPathForItem:0 inSection:sectionIndex]];
+                layoutAttributes.frame = normalizedFooterFrame;
+                [layoutAttributesArray addObject:layoutAttributes];
             }
         }
     }
@@ -171,18 +203,18 @@ static char kPSTCachedItemRectsKey;
     PSTGridLayoutRow *row = nil;
     CGRect itemFrame = CGRectZero;
 
-    if (section.fixedItemSize && indexPath.item / section.itemsByRowCount < (NSInteger)[section.rows count]) {
+    if (section.fixedItemSize && indexPath.item / section.itemsByRowCount < (NSInteger)section.rows.count) {
         row = section.rows[indexPath.item / section.itemsByRowCount];
         NSUInteger itemIndex = indexPath.item % section.itemsByRowCount;
         NSArray *itemRects = [row itemRects];
         itemFrame = [itemRects[itemIndex] CGRectValue];
-    } else if (indexPath.item < (NSInteger)[section.items count]) {
+    }else if (indexPath.item < (NSInteger)section.items.count) {
         PSTGridLayoutItem *item = section.items[indexPath.item];
         row = item.rowObject;
         itemFrame = item.itemFrame;
     }
 
-    PSTCollectionViewLayoutAttributes *layoutAttributes = [PSTCollectionViewLayoutAttributes layoutAttributesForCellWithIndexPath:indexPath];
+    PSTCollectionViewLayoutAttributes *layoutAttributes = [[self.class layoutAttributesClass] layoutAttributesForCellWithIndexPath:indexPath];
 
     // calculate item rect
     CGRect normalizedRowFrame = row.rowFrame;
@@ -194,10 +226,38 @@ static char kPSTCachedItemRectsKey;
 }
 
 - (PSTCollectionViewLayoutAttributes *)layoutAttributesForSupplementaryViewOfKind:(NSString *)kind atIndexPath:(NSIndexPath *)indexPath {
-    return nil;
+    NSUInteger sectionIndex = indexPath.section;
+
+    PSTCollectionViewLayoutAttributes *layoutAttributes = nil;
+
+    if (sectionIndex < _data.sections.count) {
+        PSTGridLayoutSection *section = _data.sections[sectionIndex];
+
+        CGRect normilazedFrame = CGRectZero;
+
+        if ([kind isEqualToString:PSTCollectionElementKindSectionHeader]) {
+            normilazedFrame = section.headerFrame;
+        }
+        else if ([kind isEqualToString:PSTCollectionElementKindSectionFooter]) {
+            normilazedFrame = section.footerFrame;
+        }
+
+        if (!CGRectIsEmpty(normilazedFrame)) {
+            normilazedFrame.origin.x += section.frame.origin.x;
+            normilazedFrame.origin.y += section.frame.origin.y;
+
+            layoutAttributes = [[self.class layoutAttributesClass] layoutAttributesForSupplementaryViewOfKind:kind withIndexPath:[NSIndexPath indexPathForItem:0 inSection:sectionIndex]];
+            layoutAttributes.frame = normilazedFrame;
+
+        }
+
+
+    }
+
+    return layoutAttributes;
 }
 
-- (PSTCollectionViewLayoutAttributes *)layoutAttributesForDecorationViewWithReuseIdentifier:(NSString*)identifier atIndexPath:(NSIndexPath *)indexPath {
+- (PSTCollectionViewLayoutAttributes *)layoutAttributesForDecorationViewWithReuseIdentifier:(NSString *)identifier atIndexPath:(NSIndexPath *)indexPath {
     return nil;
 }
 
@@ -206,16 +266,24 @@ static char kPSTCachedItemRectsKey;
     return _data.contentSize;
 }
 
+- (void)setSectionInset:(UIEdgeInsets)sectionInset {
+    if (!UIEdgeInsetsEqualToEdgeInsets(sectionInset, _sectionInset)) {
+        _sectionInset = sectionInset;
+        [self invalidateLayout];
+    }
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark - Invalidating the Layout
 
 - (void)invalidateLayout {
+    [super invalidateLayout];
     objc_setAssociatedObject(self, &kPSTCachedItemRectsKey, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
 - (BOOL)shouldInvalidateLayoutForBoundsChange:(CGRect)newBounds {
     // we need to recalculate on width changes
-    if ((self.collectionView.bounds.size.width != newBounds.size.width && self.scrollDirection == PSTCollectionViewScrollDirectionHorizontal) || (self.collectionView.bounds.size.height != newBounds.size.height && self.scrollDirection == PSTCollectionViewScrollDirectionVertical)) {
+    if ((self.collectionView.bounds.size.width != newBounds.size.width && self.scrollDirection == PSTCollectionViewScrollDirectionVertical) || (self.collectionView.bounds.size.height != newBounds.size.height && self.scrollDirection == PSTCollectionViewScrollDirectionHorizontal)) {
         return YES;
     }
     return NO;
@@ -245,11 +313,13 @@ static char kPSTCachedItemRectsKey;
 
 // get size of all items (if delegate is implemented)
 - (void)getSizingInfos {
-    NSAssert([_data.sections count] == 0, @"Grid layout is already populated?");
+    NSAssert(_data.sections.count == 0, @"Grid layout is already populated?");
 
-    id <PSTCollectionViewDelegateFlowLayout> flowDataSource = (id <PSTCollectionViewDelegateFlowLayout>)self.collectionView.dataSource;
+    id<PSTCollectionViewDelegateFlowLayout> flowDataSource = (id<PSTCollectionViewDelegateFlowLayout>)self.collectionView.delegate;
 
     BOOL implementsSizeDelegate = [flowDataSource respondsToSelector:@selector(collectionView:layout:sizeForItemAtIndexPath:)];
+    BOOL implementsHeaderReferenceDelegate = [flowDataSource respondsToSelector:@selector(collectionView:layout:referenceSizeForHeaderInSection:)];
+    BOOL implementsFooterReferenceDelegate = [flowDataSource respondsToSelector:@selector(collectionView:layout:referenceSizeForFooterInSection:)];
 
     NSUInteger numberOfSections = [self.collectionView numberOfSections];
     for (NSUInteger section = 0; section < numberOfSections; section++) {
@@ -259,7 +329,7 @@ static char kPSTCachedItemRectsKey;
 
         if ([flowDataSource respondsToSelector:@selector(collectionView:layout:insetForSectionAtIndex:)]) {
             layoutSection.sectionMargins = [flowDataSource collectionView:self.collectionView layout:self insetForSectionAtIndex:section];
-        } else {
+        }else {
             layoutSection.sectionMargins = self.sectionInset;
         }
 
@@ -280,6 +350,22 @@ static char kPSTCachedItemRectsKey;
                 layoutSection.horizontalInterstice = minimumInterimSpacing;
             }
         }
+
+        CGSize headerReferenceSize;
+        if (implementsHeaderReferenceDelegate) {
+            headerReferenceSize = [flowDataSource collectionView:self.collectionView layout:self referenceSizeForHeaderInSection:section];
+        }else {
+            headerReferenceSize = self.headerReferenceSize;
+        }
+        layoutSection.headerDimension = _data.horizontal ? headerReferenceSize.width : headerReferenceSize.height;
+
+        CGSize footerReferenceSize;
+        if (implementsFooterReferenceDelegate) {
+            footerReferenceSize = [flowDataSource collectionView:self.collectionView layout:self referenceSizeForFooterInSection:section];
+        }else {
+            footerReferenceSize = self.footerReferenceSize;
+        }
+        layoutSection.footerDimension = _data.horizontal ? footerReferenceSize.width : footerReferenceSize.height;
 
         NSUInteger numberOfItems = [self.collectionView numberOfItemsInSection:section];
 
@@ -311,11 +397,11 @@ static char kPSTCachedItemRectsKey;
         if (_data.horizontal) {
             sectionFrame.origin.x += contentSize.width;
             contentSize.width += section.frame.size.width + section.frame.origin.x;
-            contentSize.height = fmaxf(contentSize.height, sectionFrame.size.height + section.frame.origin.y);
+            contentSize.height = fmaxf(contentSize.height, sectionFrame.size.height + section.frame.origin.y + section.sectionMargins.top + section.sectionMargins.bottom);
         }else {
             sectionFrame.origin.y += contentSize.height;
             contentSize.height += sectionFrame.size.height + section.frame.origin.y;
-            contentSize.width = fmaxf(contentSize.width, sectionFrame.size.width + section.frame.origin.x);
+            contentSize.width = fmaxf(contentSize.width, sectionFrame.size.width + section.frame.origin.x + section.sectionMargins.left + section.sectionMargins.right);
         }
         section.frame = sectionFrame;
     }

@@ -13,7 +13,8 @@
 }
 
 static NSString *cellIdentifier = @"TestCell";
-static NSString *viewIdentifier = @"TestView";
+static NSString *headerViewIdentifier = @"Test Header View";
+static NSString *footerViewIdentifier = @"Test Footer View";
 
 
 #pragma mark -
@@ -51,7 +52,9 @@ static NSString *viewIdentifier = @"TestView";
 
     data = @[
         @[@"One", @"Two", @"Three"],
-        @[@"Four", @"Five", @"Six"]
+        @[@"Four", @"Five", @"Six"],
+		@[],
+		@[@"Seven"],
     ];
 }
 
@@ -79,11 +82,18 @@ static NSString *viewIdentifier = @"TestView";
 }
 
 - (PSUICollectionReusableView *)collectionView:(PSUICollectionView *)collectionView viewForSupplementaryElementOfKind:(NSString *)kind atIndexPath:(NSIndexPath *)indexPath {
-    PSUICollectionReusableView *headerView = [collectionView dequeueReusableSupplementaryViewOfKind:PSTCollectionElementKindSectionHeader withReuseIdentifier:viewIdentifier forIndexPath:indexPath];
+	NSString *identifier = nil;
+	
+	if ([kind isEqualToString:PSTCollectionElementKindSectionHeader]) {
+		identifier = headerViewIdentifier;
+	} else if ([kind isEqualToString:PSTCollectionElementKindSectionFooter]) {
+		identifier = footerViewIdentifier;
+	}
+    PSUICollectionReusableView *supplementaryView = [collectionView dequeueReusableSupplementaryViewOfKind:kind withReuseIdentifier:identifier forIndexPath:indexPath];
 
     // TODO Setup view
 
-    return headerView;
+    return supplementaryView;
 }
 
 @end

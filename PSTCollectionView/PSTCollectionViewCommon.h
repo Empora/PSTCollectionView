@@ -2,11 +2,15 @@
 //  PSTCollectionViewCommon.h
 //  PSPDFKit
 //
-//  Copyright (c) 2012 Peter Steinberger. All rights reserved.
+//  Copyright (c) 2012-2013 Peter Steinberger. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
+
+// Mostly a debug feature, makes classes from UICollection* compatible with PSTCollection*
+// (e.g. adding the "real" UICollectionViewFlowLayout to PSTCollectionView.
+//#define kPSUIInteroperabilityEnabled
 
 @class PSTCollectionView, PSTCollectionViewCell, PSTCollectionReusableView;
 
@@ -42,53 +46,28 @@
 // 4. -collectionView:didSelectItemAtIndexPath: or -collectionView:didDeselectItemAtIndexPath:
 // 5. -collectionView:didUnhighlightItemAtIndexPath:
 - (BOOL)collectionView:(PSTCollectionView *)collectionView shouldHighlightItemAtIndexPath:(NSIndexPath *)indexPath;
+
 - (void)collectionView:(PSTCollectionView *)collectionView didHighlightItemAtIndexPath:(NSIndexPath *)indexPath;
+
 - (void)collectionView:(PSTCollectionView *)collectionView didUnhighlightItemAtIndexPath:(NSIndexPath *)indexPath;
+
 - (BOOL)collectionView:(PSTCollectionView *)collectionView shouldSelectItemAtIndexPath:(NSIndexPath *)indexPath;
+
 - (BOOL)collectionView:(PSTCollectionView *)collectionView shouldDeselectItemAtIndexPath:(NSIndexPath *)indexPath; // called when the user taps on an already-selected item in multi-select mode
 - (void)collectionView:(PSTCollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath;
+
 - (void)collectionView:(PSTCollectionView *)collectionView didDeselectItemAtIndexPath:(NSIndexPath *)indexPath;
 
 - (void)collectionView:(PSTCollectionView *)collectionView didEndDisplayingCell:(PSTCollectionViewCell *)cell forItemAtIndexPath:(NSIndexPath *)indexPath;
+
 - (void)collectionView:(PSTCollectionView *)collectionView didEndDisplayingSupplementaryView:(PSTCollectionReusableView *)view forElementOfKind:(NSString *)elementKind atIndexPath:(NSIndexPath *)indexPath;
 
 // These methods provide support for copy/paste actions on cells.
 // All three should be implemented if any are.
 - (BOOL)collectionView:(PSTCollectionView *)collectionView shouldShowMenuForItemAtIndexPath:(NSIndexPath *)indexPath;
+
 - (BOOL)collectionView:(PSTCollectionView *)collectionView canPerformAction:(SEL)action forItemAtIndexPath:(NSIndexPath *)indexPath withSender:(id)sender;
+
 - (void)collectionView:(PSTCollectionView *)collectionView performAction:(SEL)action forItemAtIndexPath:(NSIndexPath *)indexPath withSender:(id)sender;
 
 @end
-
-// Newer runtimes defines this, here's a fallback for the iOS5 SDK.
-#ifndef NS_ENUM
-#define NS_ENUM(_type, _name) _type _name; enum
-#define NS_OPTIONS(_type, _name) _type _name; enum
-#endif
-
-// Category exists in iOS6.
-#if __IPHONE_OS_VERSION_MIN_REQUIRED < 60000
-@interface NSIndexPath (PSTCollectionViewAdditions)
-+ (NSIndexPath *)indexPathForItem:(NSInteger)item inSection:(NSInteger)section;
-@property (nonatomic, readonly) NSInteger item;
-@end
-#endif
-
-// imp_implementationWithBlock changed it's type in iOS6.
-#if __IPHONE_OS_VERSION_MAX_ALLOWED < 60000
-#define PSBlockImplCast (__bridge void *)
-@interface NSDictionary(PSSubscriptingSupport)
-- (id)objectForKeyedSubscript:(id)key;
-@end
-@interface NSMutableDictionary(PSSubscriptingSupport)
-- (void)setObject:(id)obj forKeyedSubscript:(id <NSCopying>)key;
-@end
-@interface NSArray(PSSubscriptingSupport)
-- (id)objectAtIndexedSubscript:(NSUInteger)idx;
-@end
-@interface NSMutableArray(PSSubscriptingSupport)
-- (void)setObject:(id)obj atIndexedSubscript:(NSUInteger)idx;
-@end
-#else
-#define PSBlockImplCast
-#endif

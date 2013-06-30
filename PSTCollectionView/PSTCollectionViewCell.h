@@ -2,7 +2,7 @@
 //  PSTCollectionViewCell.h
 //  PSPDFKit
 //
-//  Copyright (c) 2012 Peter Steinberger. All rights reserved.
+//  Copyright (c) 2012-2013 Peter Steinberger. All rights reserved.
 //
 
 #import "PSTCollectionViewCommon.h"
@@ -20,6 +20,7 @@
 - (void)applyLayoutAttributes:(PSTCollectionViewLayoutAttributes *)layoutAttributes;
 
 - (void)willTransitionFromLayout:(PSTCollectionViewLayout *)oldLayout toLayout:(PSTCollectionViewLayout *)newLayout;
+
 - (void)didTransitionFromLayout:(PSTCollectionViewLayout *)oldLayout toLayout:(PSTCollectionViewLayout *)newLayout;
 
 @end

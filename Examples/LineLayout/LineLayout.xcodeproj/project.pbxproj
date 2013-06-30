@@ -17,6 +17,7 @@
 		77C30BD3157FC0EB005E487B /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 77C30BD2157FC0EB005E487B /* main.m */; };
 		77C30BD7157FC0EB005E487B /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 77C30BD6157FC0EB005E487B /* AppDelegate.m */; };
 		77C30BDA157FC0EB005E487B /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 77C30BD9157FC0EB005E487B /* ViewController.m */; };
+		78E7A7591654EE5C000C70BE /* PSTCollectionViewUpdateItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 78E7A7581654EE5C000C70BE /* PSTCollectionViewUpdateItem.m */; };
 		78E8AB21160A347800988317 /* PSTCollectionView.m in Sources */ = {isa = PBXBuildFile; fileRef = 78E8AB0B160A347800988317 /* PSTCollectionView.m */; };
 		78E8AB22160A347800988317 /* PSTCollectionViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 78E8AB0D160A347800988317 /* PSTCollectionViewCell.m */; };
 		78E8AB23160A347800988317 /* PSTCollectionViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 78E8AB10160A347800988317 /* PSTCollectionViewController.m */; };
@@ -28,6 +29,7 @@
 		78E8AB29160A347800988317 /* PSTGridLayoutItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 78E8AB1C160A347800988317 /* PSTGridLayoutItem.m */; };
 		78E8AB2A160A347800988317 /* PSTGridLayoutRow.m in Sources */ = {isa = PBXBuildFile; fileRef = 78E8AB1E160A347800988317 /* PSTGridLayoutRow.m */; };
 		78E8AB2B160A347800988317 /* PSTGridLayoutSection.m in Sources */ = {isa = PBXBuildFile; fileRef = 78E8AB20160A347800988317 /* PSTGridLayoutSection.m */; };
+		981FA1EB16C79BB100F6149A /* NSIndexPath+PSTCollectionViewAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 981FA1EA16C79BB100F6149A /* NSIndexPath+PSTCollectionViewAdditions.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -49,6 +51,8 @@
 		77C30BD6157FC0EB005E487B /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
 		77C30BD8157FC0EB005E487B /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
 		77C30BD9157FC0EB005E487B /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
+		78E7A7571654EE5C000C70BE /* PSTCollectionViewUpdateItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PSTCollectionViewUpdateItem.h; sourceTree = "<group>"; };
+		78E7A7581654EE5C000C70BE /* PSTCollectionViewUpdateItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PSTCollectionViewUpdateItem.m; sourceTree = "<group>"; };
 		78E8AB0A160A347800988317 /* PSTCollectionView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PSTCollectionView.h; sourceTree = "<group>"; };
 		78E8AB0B160A347800988317 /* PSTCollectionView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PSTCollectionView.m; sourceTree = "<group>"; };
 		78E8AB0C160A347800988317 /* PSTCollectionViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PSTCollectionViewCell.h; sourceTree = "<group>"; };
@@ -72,6 +76,8 @@
 		78E8AB1E160A347800988317 /* PSTGridLayoutRow.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PSTGridLayoutRow.m; sourceTree = "<group>"; };
 		78E8AB1F160A347800988317 /* PSTGridLayoutSection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PSTGridLayoutSection.h; sourceTree = "<group>"; };
 		78E8AB20160A347800988317 /* PSTGridLayoutSection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PSTGridLayoutSection.m; sourceTree = "<group>"; };
+		981FA1E916C79BB100F6149A /* NSIndexPath+PSTCollectionViewAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSIndexPath+PSTCollectionViewAdditions.h"; sourceTree = "<group>"; };
+		981FA1EA16C79BB100F6149A /* NSIndexPath+PSTCollectionViewAdditions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSIndexPath+PSTCollectionViewAdditions.m"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -149,6 +155,8 @@
 		78E8AB09160A347800988317 /* PSTCollectionView */ = {
 			isa = PBXGroup;
 			children = (
+				981FA1E916C79BB100F6149A /* NSIndexPath+PSTCollectionViewAdditions.h */,
+				981FA1EA16C79BB100F6149A /* NSIndexPath+PSTCollectionViewAdditions.m */,
 				78E8AB0A160A347800988317 /* PSTCollectionView.h */,
 				78E8AB0B160A347800988317 /* PSTCollectionView.m */,
 				78E8AB0C160A347800988317 /* PSTCollectionViewCell.h */,
@@ -164,6 +172,8 @@
 				78E8AB16160A347800988317 /* PSTCollectionViewItemKey.m */,
 				78E8AB17160A347800988317 /* PSTCollectionViewLayout.h */,
 				78E8AB18160A347800988317 /* PSTCollectionViewLayout.m */,
+				78E7A7571654EE5C000C70BE /* PSTCollectionViewUpdateItem.h */,
+				78E7A7581654EE5C000C70BE /* PSTCollectionViewUpdateItem.m */,
 				78E8AB19160A347800988317 /* PSTGridLayoutInfo.h */,
 				78E8AB1A160A347800988317 /* PSTGridLayoutInfo.m */,
 				78E8AB1B160A347800988317 /* PSTGridLayoutItem.h */,
@@ -254,6 +264,8 @@
 				78E8AB29160A347800988317 /* PSTGridLayoutItem.m in Sources */,
 				78E8AB2A160A347800988317 /* PSTGridLayoutRow.m in Sources */,
 				78E8AB2B160A347800988317 /* PSTGridLayoutSection.m in Sources */,
+				78E7A7591654EE5C000C70BE /* PSTCollectionViewUpdateItem.m in Sources */,
+				981FA1EB16C79BB100F6149A /* NSIndexPath+PSTCollectionViewAdditions.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
